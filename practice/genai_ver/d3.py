@@ -13,9 +13,13 @@ uv run python practice/genai_ver/d3.py
 - 実行されたコードと画像は response.candidates[0].content.parts から取得
 """
 
+from pathlib import Path
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from pathlib import Path
+
+load_dotenv()
 
 client = genai.Client()
 

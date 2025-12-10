@@ -13,8 +13,11 @@ uv run python practice/genai_ver/d2.py
 - config の tools パラメータに渡す
 """
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+load_dotenv()
 
 client = genai.Client()
 

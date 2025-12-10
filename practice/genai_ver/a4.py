@@ -15,8 +15,11 @@ uv run python practice/genai_ver/a4.py
 - system_instruction でシステムプロンプトを設定
 """
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+load_dotenv()
 
 client = genai.Client()
 

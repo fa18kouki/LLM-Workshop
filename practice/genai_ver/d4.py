@@ -13,8 +13,11 @@ uv run python practice/genai_ver/d4.py
 - 関数の docstring が説明として使われる
 """
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+load_dotenv()
 
 client = genai.Client()
 

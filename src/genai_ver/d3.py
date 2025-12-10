@@ -5,9 +5,13 @@
 uv run python src/genai_ver/d3.py
 """
 
+from pathlib import Path
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from pathlib import Path
+
+load_dotenv()
 
 client = genai.Client()
 

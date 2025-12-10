@@ -18,8 +18,11 @@ uv run python practice/genai_ver/a3.py
 
 import time
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig, ThinkingConfig
+
+load_dotenv()
 
 client = genai.Client()
 

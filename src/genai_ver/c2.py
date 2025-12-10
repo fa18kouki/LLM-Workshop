@@ -5,13 +5,17 @@
 uv run python src/genai_ver/c2.py
 """
 
+import asyncio
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
-import asyncio
 
 # C1の評価クラスをインポート
 from c1 import evaluate_article, ArticleEvaluationResult
+
+load_dotenv()
 
 client = genai.Client()
 

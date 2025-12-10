@@ -5,10 +5,14 @@
 uv run python src/genai_ver/c1.py
 """
 
+import asyncio
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
-import asyncio
+
+load_dotenv()
 
 client = genai.Client()
 

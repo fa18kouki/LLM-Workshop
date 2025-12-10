@@ -5,9 +5,12 @@
 uv run python src/genai_ver/b2.py
 """
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
+
+load_dotenv()
 
 client = genai.Client()
 

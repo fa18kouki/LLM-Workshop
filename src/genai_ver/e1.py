@@ -5,9 +5,12 @@
 uv run python src/genai_ver/e1.py
 """
 
+import numpy as np
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import numpy as np
+
+load_dotenv()
 
 client = genai.Client()
 

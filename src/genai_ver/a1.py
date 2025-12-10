@@ -5,7 +5,10 @@
 uv run python src/genai_ver/a1.py
 """
 
+from dotenv import load_dotenv
 from google import genai
+
+load_dotenv()
 
 # Google AI クライアントを初期化
 client = genai.Client()

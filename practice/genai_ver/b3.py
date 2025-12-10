@@ -13,10 +13,14 @@ uv run python practice/genai_ver/b3.py
 - 外側のモデル（CommentAnalysis）で list[CategoryFeedback] を使用
 """
 
+from typing import Literal
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
-from typing import Literal
+
+load_dotenv()
 
 client = genai.Client()
 

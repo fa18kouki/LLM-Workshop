@@ -13,9 +13,12 @@ uv run python practice/genai_ver/b2.py
 - 複数のフィールドを定義して情報を構造化
 """
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
+
+load_dotenv()
 
 client = genai.Client()
 

@@ -13,9 +13,12 @@ uv run python practice/genai_ver/e1.py
 - numpy を使ってコサイン類似度を計算
 """
 
+import numpy as np
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import numpy as np
+
+load_dotenv()
 
 client = genai.Client()
 

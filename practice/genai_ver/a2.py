@@ -16,8 +16,11 @@ uv run python practice/genai_ver/a2.py
   - 1.0-2.0: 創造性・多様性重視（小説、アイデア出しなど）
 """
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig
+
+load_dotenv()
 
 client = genai.Client()
 

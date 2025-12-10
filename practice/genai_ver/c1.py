@@ -13,10 +13,14 @@ uv run python practice/genai_ver/c1.py
 - asyncio.gather で複数の非同期関数を並列実行
 """
 
+import asyncio
+
+from dotenv import load_dotenv
 from google import genai
 from google.genai.types import GenerateContentConfig
 from pydantic import BaseModel, Field
-import asyncio
+
+load_dotenv()
 
 client = genai.Client()
 

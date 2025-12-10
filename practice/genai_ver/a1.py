@@ -14,7 +14,10 @@ uv run python practice/genai_ver/a1.py
 - contents にプロンプト（指示文 + 入力文）を渡す
 """
 
+from dotenv import load_dotenv
 from google import genai
+
+load_dotenv()
 
 # ========================================
 # TODO: Google AI クライアントを初期化してください
