@@ -1,0 +1,38 @@
+@startuml instruction-tuning
+!define PRIMARY_COLOR #D92B2B
+!define SECONDARY_COLOR #2D2926
+!define BG_COLOR #FAFAFA
+
+skinparam backgroundColor BG_COLOR
+skinparam roundCorner 10
+skinparam shadowing false
+
+skinparam rectangle {
+    BackgroundColor white
+    BorderColor PRIMARY_COLOR
+    FontColor SECONDARY_COLOR
+}
+
+skinparam arrow {
+    Color PRIMARY_COLOR
+}
+
+skinparam note {
+    BackgroundColor #FFF5F5
+    BorderColor PRIMARY_COLOR
+}
+
+rectangle "事前学習済みLLM\n(幅広い知識を持つが\n指示には従えない)" as pretrained
+rectangle "Instruction Tuning\n(指示と回答のペアで\n追加学習)" as tuning
+rectangle "Instruction-Tuned LLM\n(指示を理解し\n実行できるモデル)" as tuned
+
+note bottom of pretrained
+  Instructionデータセット
+  「要約して」→「要約文」
+  「翻訳して」→「訳文」
+end note
+
+pretrained -right-> tuning
+tuning -right-> tuned
+
+@enduml
