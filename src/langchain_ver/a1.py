@@ -7,6 +7,11 @@ uv run python src/langchain_ver/a1.py
 
 from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_core.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
 
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
