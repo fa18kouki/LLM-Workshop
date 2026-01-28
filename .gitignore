@@ -45,5 +45,7 @@ env/
 # 生成ファイル（ソースから再生成可能）
 slides.pdf
 
-# 一時的なスクリーンショット（必要に応じてコメントアウト）
-# assets/CleanShot*
+# アセット・ドキュメント
+assets/
+diagrams/
+docs/
