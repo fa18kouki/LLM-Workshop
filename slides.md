@@ -3,7 +3,7 @@ marp: true
 theme: default
 paginate: false
 header: "LLM勉強会 〜基礎からエージェント設計まで〜"
-footer: "© 2024 RuntimeStudio Inc."
+footer: "© 2025 RuntimeStudio Inc."
 style: |
   section {
     font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
@@ -188,6 +188,12 @@ style: |
 
 # こんなのでうまく答えられるの？
 
+- 「次の単語を予測するだけ」で本当に質問に答えられる？
+- 実は、そのままだと**質問に対して質問で返す**ことがある
+- 大量のテキストで学習しただけでは「指示に従う」能力は弱い
+
+→ そこで登場するのが **Instruction Tuning**
+
 ---
 
 ![logo](./assets/logos/logo_yoko.png)
@@ -279,6 +285,8 @@ style: |
 ![logo](./assets/logos/logo_yoko.png)
 
 # 良い例と悪い例をいくつか紹介
+
+実際のプロンプトで「やりがちなミス」と「改善方法」を見てみよう
 
 ---
 
@@ -714,6 +722,596 @@ class Evaluation(BaseModel):
 
 - C2: レビュー結果をプロンプトに入れて修正させる
 - C3: `needs_revision`がTrueの間ループを回す（最大3回で打ち切り）
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Function Callingとは？
+
+LLMが**自分で判断して関数を呼び出す**仕組み
+
+## 基本的な流れ
+
+1. **関数を定義**: Python関数を定義し、docstringで説明を書く
+2. **ツールとして渡す**: LLMに利用可能な関数のリストを渡す
+3. **LLMが判断**: ユーザーの要求に応じて、適切な関数を選択
+4. **関数を実行**: LLMが生成した関数呼び出しを実行
+5. **結果を返す**: 実行結果をLLMに返して、最終的な回答を生成
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Function Calling: なぜ重要か？
+
+- LLMは**最新情報を持たない**（学習データの時点まで）
+- LLMは**外部システムにアクセスできない**（データベース、APIなど）
+- Function Callingで**リアルタイムの情報取得**や**外部システム連携**が可能に
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Function Callingの仕組み
+
+<div class="two-columns">
+<div>
+
+## 従来の方法
+- プロンプトで「APIを呼んで」と指示
+- LLMが「APIを呼んでください」と返すだけ
+- **実際の処理は人間が行う**
+
+</div>
+<div>
+
+## Function Calling
+- 関数をツールとして定義
+- LLMが**自動的に適切な関数を選択**
+- **関数を実行して結果を取得**
+- 結果を使って回答を生成
+
+</div>
+</div>
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Function Callingの実装例
+
+```python
+def get_weather(location: str) -> dict:
+    """指定された場所の天気を取得する"""
+    # 実際のAPI呼び出しなど
+    return {"気温": "25℃", "天気": "晴れ"}
+
+# 関数をツールとして渡す
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="東京の天気は？",
+    config=types.GenerateContentConfig(
+        tools=[get_weather]  # 関数を直接渡せる
+    ),
+)
+
+# LLMが自動的にget_weather("東京")を呼び出す
+```
+
+**ポイント**: 関数のdocstringがLLMへの説明として使われる
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Function Callingの実行フロー
+
+1. **ユーザー入力**: 「東京の天気は？」
+2. **LLMが判断**: `get_weather`関数を使うべきと判断
+3. **関数呼び出し生成**: `get_weather(location="東京")`
+4. **関数を実行**: 実際にPython関数を実行
+5. **結果を取得**: `{"気温": "25℃", "天気": "晴れ"}`
+6. **結果をLLMに返す**: 関数の実行結果をLLMに渡す
+7. **最終回答生成**: 「東京の天気は晴れ、気温は25℃です」
+
+**LLMは関数の実行結果を見てから回答を生成する**
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Function Callingの活用例
+
+## 実用的なエージェントの例
+
+- **計算**: 数式を計算する関数
+- **メモ管理**: メモを保存・読み取る関数
+- **日時取得**: 現在の日時を取得する関数
+- **データベース検索**: データベースに問い合わせる関数
+- **API呼び出し**: 外部APIを呼び出す関数
+
+**複数の関数を組み合わせることで、実用的なエージェントが作れる**
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# ツールとマルチモーダル
+
+LLMはテキストだけでなく、**画像**や**外部ツール**を使って情報を取得・処理できる
+
+## 演習D1: 画像入力でマルチモーダルを体験しよう
+
+- 画像ファイルを読み込んでLLMに渡す
+- 画像の内容を説明してもらう
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# ツールとマルチモーダル
+
+## 演習D2: Google検索ツールを使おう
+
+- Geminiの組み込みツール（Google Search）を使う
+- 最新情報を取得して回答する
+
+## 演習D3: コード実行ツールを使おう
+
+- LLMが生成したコードを自動実行
+- 実行結果（グラフなど）を取得
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# ツールとマルチモーダル
+
+## 演習D4: Function Callingで独自関数を呼び出そう
+
+- 自分で定義したPython関数をツールとしてLLMに渡す
+- LLMが状況に応じて適切な関数を呼び出す
+- 実際のAPIやデータベースと連携する基礎
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説D
+
+（ネタバレしたくない方はここで戻ってください）
+
+ソースコード:
+- genai: [D1](./src/genai_ver/d1.py), [D2](./src/genai_ver/d2.py), [D3](./src/genai_ver/d3.py), [D4](./src/genai_ver/d4.py)
+- LangChain: [D1](./src/langchain_ver/d1.py)
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説D1: マルチモーダル（genai）
+
+```python
+from google.genai import types
+
+with open(image_path, "rb") as f:
+    image_bytes = f.read()
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=[
+        types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+        "画像の内容を説明してください",
+    ],
+)
+```
+
+画像とテキストを**リスト**で渡すことで、マルチモーダル入力が可能
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説D2: Google検索ツール（genai）
+
+```python
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=query,
+    config=types.GenerateContentConfig(
+        tools=[types.Tool(google_search=types.GoogleSearch())]
+    ),
+)
+```
+
+`tools`パラメータにツールを渡すと、LLMが自動的にツールを使いながら回答を生成
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説D3: コード実行ツール（genai）
+
+```python
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=prompt,
+    config=types.GenerateContentConfig(
+        tools=[types.Tool(code_execution=types.ToolCodeExecution)]
+    ),
+)
+
+# 実行されたコードと結果を取得
+for candidate in response.candidates:
+    for part in candidate.content.parts:
+        if hasattr(part, "executable_code"):
+            code = part.executable_code.code  # 実行されたコード
+        if hasattr(part, "inline_data"):
+            image_data = part.inline_data.data  # 生成された画像など
+```
+
+LLMが生成したコードを自動実行し、結果（テキストや画像）を取得できる
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説D4: Function Calling（genai）
+
+```python
+def get_current_temperature(location: str) -> dict[str, str]:
+    """今日の気温を調べる関数"""
+    return {"気温": "25℃"}
+
+def get_current_humidity(location: str) -> dict[str, str]:
+    """今日の湿度を調べる関数"""
+    return {"湿度": "50%"}
+
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents=query,
+    config=types.GenerateContentConfig(
+        tools=[get_current_temperature, get_current_humidity]
+    ),
+)
+```
+
+**Python関数を直接ツールとして渡せる**。関数のdocstringが説明として使われる
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# Embedding（ベクトル化）
+
+テキストを数値ベクトルに変換して、**意味的な類似度**を計算できる
+
+## 演習E1: Embeddingで類似度を計算しよう
+
+- テキストをEmbedding（ベクトル）に変換
+- コサイン類似度で類似性を計算
+- 「漫画」と「アニメ」は近い、「サッカー」は遠いことを体験
+
+**用途**: 検索、レコメンデーション、RAG（後述）など
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説E1
+
+（ネタバレしたくない方はここで戻ってください）
+
+ソースコード:
+- genai: [E1](./src/genai_ver/e1.py)
+- LangChain: [E1](./src/langchain_ver/e1.py)
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説E1: Embedding（genai）
+
+```python
+import numpy as np
+
+# Embeddingを取得（768次元のベクトルなど）
+result = client.models.embed_content(
+    model="text-multilingual-embedding-002",
+    contents=["漫画", "アニメ", "サッカー"],
+    config=types.EmbedContentConfig(
+        task_type="SEMANTIC_SIMILARITY",
+    ),
+)
+embeddings = [np.array(emb.values) for emb in result.embeddings]
+
+# コサイン類似度を計算
+def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
+    normed1 = vec1 / np.linalg.norm(vec1)
+    normed2 = vec2 / np.linalg.norm(vec2)
+    return np.dot(normed1, normed2)
+```
+
+Embeddingは**意味を数値化**したもの。似た意味のテキストは近いベクトルになる
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説E1: Embedding（LangChain）
+
+```python
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+model = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004",
+)
+embeddings = model.embed_documents(["漫画", "アニメ", "サッカー"])
+```
+
+LangChainでは`GoogleGenerativeAIEmbeddings`で簡単にEmbeddingを取得できる
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# エージェントとは？
+
+前半で学んだ要素がすべてつながる
+
+| 学んだこと | エージェントでの役割 |
+|:--|:--|
+| API呼び出し（A） | LLMとの対話 |
+| 構造化出力（B） | ツールの引数・結果の型定義 |
+| 複数LLM（C） | タスク分解・ループ |
+| Function Calling（D） | ツールの自動選択・実行 |
+| Embedding（E） | 知識検索（RAG） |
+
+**エージェント = LLM + ツール + 自律的な判断ループ**
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# エージェントのアーキテクチャ
+
+## 演習Cのループとの違い
+
+| 演習C（フィードバックループ） | エージェント |
+|:--|:--|
+| 事前に決めた処理順序 | **LLMが自分で判断** |
+| 固定のツール呼び出し | **状況に応じてツールを選択** |
+| 決まった回数で終了 | **目的達成で自律的に終了** |
+
+## エージェントの基本ループ
+
+1. ユーザー入力を受け取る
+2. LLMが**どのツールを使うか判断**（または直接回答）
+3. ツールを実行し、結果をLLMに返す
+4. LLMが結果を見て**最終回答を生成**（または再度ツール呼び出し）
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 実践演習（ハンズオン）〜後半〜
+
+## 演習F: エージェントのコードを読んで理解しよう
+
+**重要: これは実装演習ではありません**
+
+- `./practice/genai_ver/` のFシリーズは**完成したコード**です
+- コードを読んで、エージェントの仕組みを理解することが目標
+- 各ファイルの「理解度チェック」に答えながら進めてください
+
+**学習の進め方:**
+1. コードを読む（コメントに注目）
+2. `uv run python practice/genai_ver/f1.py` で実行して動作確認
+3. 理解度チェックの質問に答える
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# エージェントループを図解
+
+```
+ユーザー入力
+    ↓
+┌──────────────────────────────────────┐
+│ STEP 1: LLMにツール情報を渡して呼び出す  │
+│  → tools=[calculate, get_datetime]    │
+│  → LLMは「使えるツール」を把握          │
+└──────────────────────────────────────┘
+    ↓
+┌──────────────────────────────────────┐
+│ STEP 2: LLMの判断を確認              │
+│  → function_call あり → ツールを使う   │
+│  → テキストのみ → 直接回答する         │
+└──────────────────────────────────────┘
+    ↓ (function_callの場合)
+┌──────────────────────────────────────┐
+│ STEP 3: プログラム側でツールを実行      │
+│  → calculate("3 + 5 * 2") → 13      │
+└──────────────────────────────────────┘
+    ↓
+┌──────────────────────────────────────┐
+│ STEP 4: 結果をLLMに返して最終回答生成   │
+│  → 「計算結果は13です」              │
+└──────────────────────────────────────┘
+```
+
+**重要:** `generate_content` を**2回**呼んでいる（STEP 1とSTEP 4）
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 演習F1: 基本エージェントを読んで理解しよう
+
+**読むファイル:** `practice/genai_ver/f1.py`（完成版）
+
+**理解すべき概念:**
+- STEP 1〜4がコードのどこに実装されているか
+- なぜ `generate_content` を2回呼ぶのか
+- LLMはどうやって「計算が必要」と判断しているか
+
+**実行して確認:**
+1. 「3 + 5 * 2を計算して」→ calculate ツールが実行される
+2. 「今何時？」→ get_current_datetime ツールが実行される
+3. 「おはよう」→ ツールを使わず直接回答
+
+**重要な洞察:**
+我々は「どのツールを使うか」のif文を書いていない。
+**LLMが自律的に判断している** = これがエージェント
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 演習F2: マルチツールエージェントを理解しよう
+
+**読むファイル:** `practice/genai_ver/f2.py`（完成版）
+
+**F1との違いを探してください:**
+- ツールが2個 → 5個に増えた
+- しかし、エージェントループのコードは？ → **変わっていない**
+
+**実験してみよう:**
+1. 「買い物リストをメモして: りんご、バナナ」→ save_memo
+2. 「買い物リストを読んで」→ read_memo
+3. 「メモの一覧は？」→ list_memos
+
+**重要な洞察:**
+- ツールを追加するだけで機能拡張できる = **エージェントの拡張性**
+- 各ツールのdocstringが「LLMへの説明書」になっている
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 演習F3: エージェント設計の考え方（発展）
+
+**読むファイル:** `practice/genai_ver/f3.py`（タスク管理エージェント）
+
+**設計の考え方を理解:**
+- なぜ add_task / complete_task / list_tasks の3つに分けたか
+- 1つの巨大な関数にするより、分けたほうがLLMが正確に判断できる
+
+**ディスカッション:**
+あなたの業務で役立ちそうなエージェントは？
+- 例: 顧客管理（検索/追加/更新）
+- 例: レポート生成（データ取得/分析/整形）
+- 例: 翻訳（言語検出/翻訳/校正）
+
+**エージェント開発の本質:**
+「LLMに何をさせたいか」= ツール関数の設計。
+ループ処理はF1〜F3すべて同じ
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説F: コードと概念の対応
+
+演習Fのコードで、STEP 1〜4がどこに実装されているか確認しましょう
+
+ソースコード:
+- [F1](./practice/genai_ver/f1.py), [F2](./practice/genai_ver/f2.py), [F3](./practice/genai_ver/f3.py)
+- 完成版エージェント: [agent.py](./src/genai_ver/agent.py)
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説F1: コードのどこがどのSTEPか
+
+```python
+# STEP 1: LLMにツール情報を渡して呼び出す
+response = client.models.generate_content(
+    contents=history,
+    config=types.GenerateContentConfig(tools=tools),  # ← ここでツールを教える
+)
+
+# STEP 2: LLMの判断を確認
+if hasattr(part, "function_call") and part.function_call:
+    # → LLMが「ツールを使いたい」と判断した
+
+    # STEP 3: プログラム側でツールを実行
+    result = tool(**func_args)
+
+# STEP 4: 結果をLLMに返して最終回答を生成
+final_response = client.models.generate_content(
+    contents=history,  # ← ツール実行結果が追加されている
+)
+```
+
+**なぜ2回呼ぶ？** 1回目=ツール判断、2回目=最終回答生成
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 解説F: よくある質問
+
+**Q: なぜ generate_content を2回呼ぶの？**
+1回目: LLMが「どのツールを使うか」判断 → function_call を返す
+2回目: ツール実行結果を見て、最終的な回答を生成
+
+**Q: ツールの選択ロジック（if文）はどこに書くの？**
+書きません。LLMが tools の情報（関数名・docstring・引数）を読んで自分で判断します
+
+**Q: ツールを10個に増やしたらコードは変わる？**
+tools リストに追加するだけ。エージェントループは変わりません
+
+**Q: LLMは複数ツールを同時に呼べる？**
+はい。for ループで parts を回しているのはそのためです
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# 演習の振り返り: 何が変わったか
+
+| 演習C（フィードバックループ） | 演習F（エージェント） |
+|:--|:--|
+| 我々が処理順序を決定 | **LLMが自律的に判断** |
+| if文で評価軸を分岐 | **LLMがツールを選択** |
+| 固定のループ回数 | **目的達成まで自律的に実行** |
+
+## エージェント開発者の仕事
+
+**我々が作るもの:**
+1. ツール関数の定義（calculate, save_memo など）
+2. ツールのリスト作成（tools = [...]）
+3. エージェントループの実装（毎回同じ）
+
+**LLMに任せるもの:**
+1. どのツールを使うかの判断
+2. ツールに渡す引数の決定
+3. 最終回答の生成
+
+---
+
+![logo](./assets/logos/logo_yoko.png)
+
+# まとめ: 今日学んだこと
+
+```
+A: API呼び出し        → LLMと会話する基礎
+B: 構造化出力          → 出力をプログラムで扱える形に
+C: 複数LLM            → タスクを分解して並列・ループ処理
+D: ツール・マルチモーダル → 外部機能との連携
+E: Embedding           → 意味的な類似度の計算
+F: エージェント構築     → すべてを組み合わせた自律型AI
+```
+
+## 次のステップ
+
+- **RAG**: Embedding + ベクトルDB で社内ドキュメント検索
+- **MCP**: ツールを標準化して再利用可能に
+- **マルチエージェント**: 複数エージェントの協調
 
 ---
 
