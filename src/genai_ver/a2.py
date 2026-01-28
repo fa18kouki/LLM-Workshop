@@ -14,11 +14,11 @@ load_dotenv()
 client = genai.Client()
 
 
-def generate_story(keyword: str, temperature: float) -> str:
-    """キーワードから短い小説を生成する"""
+def generate_introduction(keyword: str, temperature: float) -> str:
+    """キーワードを含む自己紹介を生成する"""
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=f"「{keyword}」をテーマに、3文程度の短い小説を書いてください。",
+        contents=f"「{keyword}」というキーワードを必ず含めて、3文程度の自己紹介文を書いてください。",
         config=GenerateContentConfig(temperature=temperature),
     )
     return response.text
@@ -36,16 +36,16 @@ def translate_text(text: str, temperature: float) -> str:
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("【小説生成】温度による違いを確認")
+    print("【自己紹介生成】温度による違いを確認")
     print("=" * 60)
 
-    keyword = "月明かり"
+    keyword = "プログラミング"
 
-    for temp in [0.1, 1.0, 1.5]:
+    for temp in [0, 0.1, 1.0, 1.5]:
         print(f"\n--- temperature={temp} ---")
         # 同じ温度で3回生成して違いを確認
         for i in range(3):
-            result = generate_story(keyword, temp)
+            result = generate_introduction(keyword, temp)
             print(f"[{i + 1}] {result[:100]}...")
             print()
 
@@ -53,9 +53,9 @@ if __name__ == "__main__":
     print("【翻訳】温度による違いを確認")
     print("=" * 60)
 
-    text = "桜の花が満開で、公園はとても美しかった。"
+    text = "私はフロントエンドエンジニアとして、Webアプリケーションの開発に携わっています。"
 
-    for temp in [0.1, 1.0]:
+    for temp in [0, 0.1, 1.0]:
         print(f"\n--- temperature={temp} ---")
         for i in range(3):
             result = translate_text(text, temp)

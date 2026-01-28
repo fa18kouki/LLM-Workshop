@@ -40,6 +40,7 @@ def analyze_comment(comment: str) -> CommentAnalysis:
             temperature=0.1,
         ),
     )
+    print(response.text)
     return CommentAnalysis.model_validate_json(response.text)
 
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     result = analyze_comment(comment)
-
+    print(result)
     print(f"\n元のコメント:\n{comment}")
     print("\n--- 分析結果 ---")
     print(f"商品名: {result.product_name}")
